@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">ChatTool</string>
+    <!--权限-->
+    <string name="permission_sdcard_success">申请SD卡权限成功</string>
+    <string name="permission_sdcard_failed">拒绝SD卡权限将无法使用照片等功能</string>
+
 </resources>
