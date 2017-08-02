@@ -3,5 +3,8 @@
     <!--权限-->
     <string name="permission_sdcard_success">申请SD卡权限成功</string>
     <string name="permission_sdcard_failed">拒绝SD卡权限将无法使用照片等功能</string>
-
+    <!--网络不可用-->
+    <string name="network_is_not_avilable">当前网络不可用,请检查网络！</string>
+    <!--请求服务器异常-->
+    <string name="request_server_is_error">请求服务器异常</string>
 </resources>
