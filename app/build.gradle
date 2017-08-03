@@ -27,16 +27,13 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile project(':PushSDK')
+    //Optional compile for GCM (Google Cloud Messaging).
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:24.2.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.1'
-    testCompile 'junit:junit:4.12'
-    compile project(':PushSDK')
     compile 'com.jakewharton:butterknife:8.4.0'
-    apt 'com.jakewharton:butterknife-compiler:8.4.0'
-    apt 'com.zhy:mpermission-compiler:1.0.0'
     compile 'com.zhy:mpermission-api:1.0.0'
-    //Optional compile for GCM (Google Cloud Messaging).
     compile 'com.google.android.gms:play-services-gcm:9.4.0'
     compile 'com.hyphenate:hyphenate-sdk:3.3.0'
     compile 'io.reactivex:rxjava:1.0.14'
@@ -45,4 +42,7 @@ dependencies {
     compile 'com.lzy.net:okhttpserver:+'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.google.code.gson:gson:2.4'
+    testCompile 'junit:junit:4.12'
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    apt 'com.zhy:mpermission-compiler:1.0.0'
 }

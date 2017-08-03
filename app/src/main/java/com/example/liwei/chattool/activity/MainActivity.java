@@ -2,10 +2,11 @@ package com.example.liwei.chattool.activity;
 
 import android.Manifest;
 import android.content.Context;
-import android.graphics.Color;
-import android.os.Build;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -31,9 +32,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-/**
- * 主界面
- */
+//主界面
 public class MainActivity extends ParentActivity implements View.OnClickListener {
     //登录
     @BindView(R.id.login)
@@ -49,11 +48,13 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     EditText etPassword;
     //记住密码
     @BindView(R.id.savePassword)
-    CheckBox cbSavePassword;
+    CheckBox cbRemeberMe;
     //必应每日一图
     @BindView(R.id.iv_biYing)
     ImageView ivBiYing;
     private Context mContext;
+    //是否记住密码
+    private boolean isRemeberMe=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,18 +65,20 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
         hideStateBar();
         checkNetworkState();
         uploadBiYingImage();
+        isRememberMe();
     }
-
-    //隐藏StateBar
-    private void hideStateBar() {
-        View decorView = getWindow().getDecorView();
-        if(Build.VERSION.SDK_INT >= 21){
-            int options=View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN  |  View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
-            decorView.setSystemUiVisibility(options);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
+    //判断用户上次是否选择记住密码
+    //记住密码：显示密码
+    //未记住密码：清空
+    private void isRememberMe() {
+        SharedPreferences sp = getSharedPreferences(Constant.REMEBER_ME, Context.MODE_PRIVATE);
+        String password = sp.getString(Constant.PASSWORD_KEY, "");
+        if(!TextUtils.isEmpty(password)){
+            etPassword.setText(password);
+        }else {
+            etPassword.setText("");
         }
     }
-
     //加载必应每日一图
     private void uploadBiYingImage() {
         boolean isAvalibale = checkNetworkState();
@@ -94,9 +97,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                         dismissDialog();
                     }
                 });
-
             }
-
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 LogUtil.d("currentThreadID:",String.valueOf(Thread.currentThread().getId()));
@@ -120,16 +121,19 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             }
         });
     }
-
     //组件初始化
     private void init(){
         mContext=this;
         btnLogin.setOnClickListener(this);
         btnRegist.setOnClickListener(this);
-        cbSavePassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cbRemeberMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+                    if(isChecked){
+                        isRemeberMe=true;
+                    }else{
+                        isRemeberMe=false;
+                    }
             }
         });
     }
@@ -140,32 +144,29 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     //SD卡权限成功回掉
     @PermissionGrant(Constant.WRITE_STORGE_REQUEST_CODE)
     public void onSuccess() {
-//        ToastUtils.showToast(R.string.permission_sdcard_success);
+        //ToastUtils.showToast(R.string.permission_sdcard_success);
     }
-
     //SD卡权限失败回掉
     @PermissionDenied(Constant.WRITE_STORGE_REQUEST_CODE)
     public void onFailed() {
         ToastUtils.showToast(R.string.permission_sdcard_failed);
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         MPermissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-
     @Override
     public void onClick(View v) {
+        Intent intent=null;
         switch (v.getId()){
             case R.id.login://登录
 
                 break;
             case R.id.regist://注册
-
+                intent=new Intent(this,RegistActivity.class);
+                startActivityWithAnimation(intent,false);
                 break;
         }
     }
-
-
 }

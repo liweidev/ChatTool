@@ -2,8 +2,11 @@ package com.example.liwei.chattool.activity;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -95,5 +98,21 @@ public class ParentActivity extends AppCompatActivity {
         dismissDialog();
         return networkIsAvailable;
     }
-
+    //伴随动画跳转Activity
+    public void startActivityWithAnimation(Intent intent,boolean isFinish){
+        startActivity(intent);
+        overridePendingTransition(android.R.anim.slide_in_left,android.R.anim.slide_out_right);
+        if(isFinish){
+            finish();
+        }
+    }
+    //隐藏StateBar
+    public void hideStateBar() {
+        View decorView = getWindow().getDecorView();
+        if(Build.VERSION.SDK_INT >= 21){
+            int options=View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN  |  View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+            decorView.setSystemUiVisibility(options);
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
+    }
 }
