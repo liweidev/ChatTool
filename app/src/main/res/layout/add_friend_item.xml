@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/iv_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/add_friend"
+        android:layout_margin="15dp"/>
+    <TextView
+        android:id="@+id/tv_friend_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="?attr/colorAccent"
+        android:layout_toRightOf="@+id/iv_icon"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="15dp"
+        android:singleLine="true"
+        android:layout_toLeftOf="@+id/btn_add"
+        android:layout_marginRight="15dp"/>
+    <Button
+        android:id="@+id/btn_add"
+        android:layout_width="70dp"
+        android:layout_height="35dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="15dp"
+        android:background="@drawable/btn_add_selector"
+        android:text="@string/btn_add_friend"/>
+</RelativeLayout>

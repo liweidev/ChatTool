@@ -33,6 +33,11 @@
     <!--联系人Fragment-->
     <string name="contacts_new_friend">新的朋友</string>
     <string name="contacts_group_chat">群聊</string>
-
+    <!--添加好友-->
+    <string name="add_friend">添加好友</string>
+    <string name="btn_add_friend">添加</string>
+    <string name="search_content_is_not_empty">搜索内容不能为空</string>
+    <string name="add_friend_success">好友请求已经发送，请等待对方同意</string>
+    <string name="add_friend_error">发送失败</string>
 
 </resources>

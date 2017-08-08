@@ -1,16 +1,16 @@
 package com.example.liwei.chattool.activity;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.liwei.chattool.Constant.Constant;
@@ -23,14 +23,12 @@ import com.example.liwei.chattool.fragment.MessageFragment;
 import com.example.liwei.chattool.util.LogUtil;
 import com.example.liwei.chattool.util.SPUtil;
 import com.example.liwei.chattool.util.ToastUtils;
+import com.hyphenate.EMContactListener;
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
 import com.zhihu.matisse.Matisse;
-import com.zhy.m.permission.MPermissions;
-import com.zhy.m.permission.PermissionDenied;
-import com.zhy.m.permission.PermissionGrant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +65,41 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     //添加
     @BindView(R.id.iv_add)
     ImageView ivAdd;
+    @BindView(R.id.rl_message)
+    RelativeLayout rlMessage;
+    @BindView(R.id.rl_contacts)
+    RelativeLayout rlContacts;
+    @BindView(R.id.rl_find)
+    RelativeLayout rlFind;
+    @BindView(R.id.rl_me)
+    RelativeLayout rlMe;
+    //消息
+    @BindView(R.id.tv_message)
+    TextView tvMessage;
+    //联系人
+    @BindView(R.id.tv_contacts)
+    TextView tvContacts;
+    //发现
+    @BindView(R.id.tv_find)
+    TextView tvFind;
+    //我
+    @BindView(R.id.tv_me)
+    TextView tvMe;
+    //消息小红点
+    @BindView(R.id.tv_message_tap)
+    TextView tvMessageTap;
+    //联系人小红点
+    @BindView(R.id.tv_contacts_tap)
+    TextView tvContactsTap;
+    //发现小红点
+    @BindView(R.id.tv_find_tap)
+    TextView tvFindTap;
+    //我小红点
+    @BindView(R.id.tv_me_tap)
+    TextView tvMeTap;
     private Context mContext;
+    //是否显示联系人小红点
+    private boolean isShowContactsTap=false;
     //消息监听回掉
     EMMessageListener msgListener = new EMMessageListener() {
         @Override
@@ -108,9 +140,59 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
         ButterKnife.bind(this);
         hideActionBar();
         init();
+        initContactsTap();
         initViewPager();
         registerMessageLisenter();
         getUnReadMessageCount();
+        registerFriendStateLisenter();
+    }
+    //是否显示联系人小红点
+    private void initContactsTap() {
+        isShowContactsTap=SPUtil.getInstance(mContext,Constant.SHOW_TAP_MAIN_CONTACTS).get(Constant.SHOW_TAP_MAIN_CONTACTS_KEY,false);
+        if(isShowContactsTap){
+            tvContactsTap.setVisibility(View.VISIBLE);
+        }else{
+            tvContactsTap.setVisibility(View.GONE);
+        }
+    }
+    //监听好友状态
+    private void registerFriendStateLisenter() {
+        EMClient.getInstance().contactManager().setContactListener(new EMContactListener() {
+            @Override
+            public void onContactInvited(String username, String reason) {
+                //收到好友邀请
+                ToastUtils.showToast("收到好友邀请" + username + reason);
+                if (fragments != null && fragments.size() > 0) {
+                    ContactsFragment fragment = (ContactsFragment) fragments.get(1);
+                    fragment.showTap();
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvContactsTap.setVisibility(View.VISIBLE);
+                        SPUtil.getInstance(mContext,Constant.SHOW_TAP_MAIN_CONTACTS).put(Constant.SHOW_TAP_MAIN_CONTACTS_KEY,true);
+                    }
+                });
+            }
+            @Override
+            public void onFriendRequestAccepted(String s) {
+                ToastUtils.showToast("同意好友请求" + s);
+            }
+            @Override
+            public void onFriendRequestDeclined(String s) {
+                ToastUtils.showToast("拒绝好友邀请" + s);
+            }
+            @Override
+            public void onContactDeleted(String username) {
+                //被删除时回调此方法
+                ToastUtils.showToast("被删除时回调此方法");
+            }
+            @Override
+            public void onContactAdded(String username) {
+                //增加了联系人时回调此方法
+                ToastUtils.showToast("增加了联系人时回调此方法" + username);
+            }
+        });
     }
 
     //获取未读消息数量
@@ -164,10 +246,12 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             }
+
             @Override
             public void onPageSelected(int position) {
                 setViewPagerSelect(position);
             }
+
             @Override
             public void onPageScrollStateChanged(int state) {
             }
@@ -182,6 +266,10 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                 ivContacts.setImageResource(R.drawable.contacts_normal);
                 ivFind.setImageResource(R.drawable.find_normal);
                 ivMe.setImageResource(R.drawable.me_normal);
+                tvMessage.setTextColor(Color.parseColor("#1296db"));
+                tvContacts.setTextColor(Color.parseColor("#FF000000"));
+                tvFind.setTextColor(Color.parseColor("#FF000000"));
+                tvMe.setTextColor(Color.parseColor("#FF000000"));
                 tvTitle.setText(R.string.main_message);
                 ivAdd.setVisibility(View.GONE);
                 break;
@@ -190,6 +278,10 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                 ivContacts.setImageResource(R.drawable.contacts_selector);
                 ivFind.setImageResource(R.drawable.find_normal);
                 ivMe.setImageResource(R.drawable.me_normal);
+                tvMessage.setTextColor(Color.parseColor("#FF000000"));
+                tvContacts.setTextColor(Color.parseColor("#1296db"));
+                tvFind.setTextColor(Color.parseColor("#FF000000"));
+                tvMe.setTextColor(Color.parseColor("#FF000000"));
                 tvTitle.setText(R.string.main_contacts);
                 ivAdd.setVisibility(View.VISIBLE);
                 break;
@@ -198,6 +290,10 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                 ivContacts.setImageResource(R.drawable.contacts_normal);
                 ivFind.setImageResource(R.drawable.find_selector);
                 ivMe.setImageResource(R.drawable.me_normal);
+                tvMessage.setTextColor(Color.parseColor("#FF000000"));
+                tvContacts.setTextColor(Color.parseColor("#FF000000"));
+                tvFind.setTextColor(Color.parseColor("#1296db"));
+                tvMe.setTextColor(Color.parseColor("#FF000000"));
                 tvTitle.setText(R.string.main_find);
                 ivAdd.setVisibility(View.GONE);
                 break;
@@ -206,6 +302,10 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
                 ivContacts.setImageResource(R.drawable.contacts_normal);
                 ivFind.setImageResource(R.drawable.find_normal);
                 ivMe.setImageResource(R.drawable.me_selector);
+                tvMessage.setTextColor(Color.parseColor("#FF000000"));
+                tvContacts.setTextColor(Color.parseColor("#FF000000"));
+                tvFind.setTextColor(Color.parseColor("#FF000000"));
+                tvMe.setTextColor(Color.parseColor("#1296db"));
                 tvTitle.setText(R.string.main_me);
                 ivAdd.setVisibility(View.GONE);
                 break;
@@ -216,10 +316,10 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     //初始化
     private void init() {
         mContext = this;
-        ivMessage.setOnClickListener(this);
-        ivContacts.setOnClickListener(this);
-        ivFind.setOnClickListener(this);
-        ivMe.setOnClickListener(this);
+        rlMessage.setOnClickListener(this);
+        rlContacts.setOnClickListener(this);
+        rlFind.setOnClickListener(this);
+        rlMe.setOnClickListener(this);
         ivAdd.setOnClickListener(this);
     }
 
@@ -240,46 +340,47 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.iv_message://消息
+            case R.id.rl_message://消息
                 setViewPagerSelect(0);
                 break;
-            case R.id.iv_contacts://联系人
+            case R.id.rl_contacts://联系人
                 setViewPagerSelect(1);
                 break;
-            case R.id.iv_find://发现
+            case R.id.rl_find://发现
                 setViewPagerSelect(2);
                 break;
-            case R.id.iv_me://我
+            case R.id.rl_me://我
                 setViewPagerSelect(3);
                 break;
-            case R.id.iv_add://添加
-                requestPermission();
+            case R.id.iv_add://添加好友
+//                requestPermission();
+                Intent intent = new Intent(mContext, AddFriendActivity.class);
+                startActivityWithAnimation(intent, false);
                 break;
         }
     }
-
     //请求权限
-    private void requestPermission() {
-        MPermissions.requestPermissions(this, Constant.WRITE_STORGE_REQUEST_CODE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-    }
+//    private void requestPermission() {
+//        MPermissions.requestPermissions(this, Constant.WRITE_STORGE_REQUEST_CODE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//    }
 
     //SD卡权限成功回掉
-    @PermissionGrant(Constant.WRITE_STORGE_REQUEST_CODE)
-    public void onSuccess() {
-        //ToastUtils.showToast(R.string.permission_sdcard_success);
-        selecteImage(this, Constant.REQUEST_IMAGE_CODE_CHOOSE);
-    }
+//    @PermissionGrant(Constant.WRITE_STORGE_REQUEST_CODE)
+//    public void onSuccess() {
+//        //ToastUtils.showToast(R.string.permission_sdcard_success);
+//        selecteImage(this, Constant.REQUEST_IMAGE_CODE_CHOOSE);
+//    }
 
     //SD卡权限失败回掉
-    @PermissionDenied(Constant.WRITE_STORGE_REQUEST_CODE)
-    public void onFailed() {
-        ToastUtils.showToast(R.string.permission_sdcard_failed);
-    }
+//    @PermissionDenied(Constant.WRITE_STORGE_REQUEST_CODE)
+//    public void onFailed() {
+//        ToastUtils.showToast(R.string.permission_sdcard_failed);
+//    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        MPermissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        MPermissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//    }
 
 }

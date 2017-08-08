@@ -8,41 +8,138 @@
     tools:context="com.example.liwei.chattool.activity.MainActivity">
     <include
         android:id="@+id/head_title"
-        layout="@layout/head_title"/>
+        layout="@layout/main_head_title"/>
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/main_tab_layer_list"
-        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="10dp"
-        android:layout_alignParentBottom="true"
-        >
-        <ImageView
-            android:id="@+id/iv_message"
+        android:layout_alignParentBottom="true">
+        <RelativeLayout
+            android:id="@+id/rl_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/message_normal" />
-        <ImageView
-            android:id="@+id/iv_contacts"
+            android:paddingTop="15dp">
+            <ImageView
+                android:id="@+id/iv_message"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/message_normal"
+                android:layout_centerInParent="true"/>
+            <TextView
+                android:id="@+id/tv_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/iv_message"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="@string/main_message"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tv_message_tap"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/tap"
+                android:layout_toRightOf="@+id/iv_message"
+                android:visibility="gone"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_contacts"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/contacts_normal" />
-        <ImageView
-            android:id="@+id/iv_find"
+            android:paddingTop="15dp">
+            <ImageView
+                android:id="@+id/iv_contacts"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/contacts_normal"
+                android:layout_centerInParent="true"/>
+            <TextView
+                android:id="@+id/tv_contacts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/iv_contacts"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="@string/main_contacts"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tv_contacts_tap"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/tap"
+                android:layout_toRightOf="@+id/iv_contacts"
+                android:visibility="gone"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_find"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/find_normal" />
-        <ImageView
-            android:id="@+id/iv_me"
+            android:paddingTop="15dp">
+            <ImageView
+                android:id="@+id/iv_find"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/find_normal"
+                android:layout_centerInParent="true"/>
+            <TextView
+                android:id="@+id/tv_find"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/iv_find"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="@string/main_find"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tv_find_tap"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/tap"
+                android:layout_toRightOf="@+id/iv_find"
+                android:visibility="gone"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rl_me"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/me_normal" />
+            android:paddingTop="15dp">
+            <ImageView
+                android:id="@+id/iv_me"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/me_normal"
+                android:layout_centerInParent="true"/>
+            <TextView
+                android:id="@+id/tv_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/iv_me"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:singleLine="true"
+                android:text="@string/main_me"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tv_me_tap"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/tap"
+                android:layout_toRightOf="@+id/iv_me"
+                android:visibility="gone"/>
+        </RelativeLayout>
     </LinearLayout>
     <android.support.v4.view.ViewPager
         android:id="@+id/viewPager"

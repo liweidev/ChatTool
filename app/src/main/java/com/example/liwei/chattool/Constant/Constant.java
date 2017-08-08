@@ -24,5 +24,16 @@ public class Constant {
     public static final String CURRENT_USER="current_user";
     //当前用户名Key
     public static final String CURRENT_USER_KEY="current_user_key";
+    //添加理由
+    public static final String ADD_FRIEND_REASON="希望和你交个朋友！";
+    //是否显示好友添加消息小红点文件名字
+    public static final String SHOW_TAP="show_tap";
+    //是否显示消息好友添加小红点key
+    public static final String SHOW_TAP_KEY="show_tap_key";
+    //是否显示主界面联系人消息小红点文件名字
+    public static final String SHOW_TAP_MAIN_CONTACTS="show_tap_contacts_main";
+    //是否显示主界面联系人消息小红点key
+    public static final String SHOW_TAP_MAIN_CONTACTS_KEY="show_tap_contacts_main_key";
+
 
 }

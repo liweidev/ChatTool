@@ -15,9 +15,10 @@ import com.example.liwei.chattool.R;
  */
 //联系人右侧导航条，配合RecyclerView联动
 public class SideBar extends AppCompatTextView {
-    private String[] letters = new String[]{"搜","A", "B", "C", "D", "E", "F", "G", "H", "I",
-            "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V",
-            "W", "X", "Y", "Z", "#"};
+    private String[] letters = new String[]{
+            "搜","A", "B", "C", "D", "E", "F", "G", "H", "I",
+            "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S",
+            "T", "U", "V", "W", "X", "Y", "Z", "#"};
     private Paint textPaint;
     private Paint bigTextPaint;
     private Paint scaleTextPaint;

@@ -7,10 +7,23 @@
     android:layout_height="wrap_content"
     android:padding="15dp"
     android:gravity="center_vertical">
-    <ImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/new_friend"/>
+    <RelativeLayout
+        android:layout_width="54dp"
+        android:layout_height="54dp">
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/new_friend"
+            android:layout_margin="6dp"/>
+        <TextView
+            android:id="@+id/tv_tap"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/tap"
+            android:visibility="gone"/>
+    </RelativeLayout>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

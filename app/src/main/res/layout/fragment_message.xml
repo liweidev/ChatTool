@@ -21,6 +21,15 @@
             android:hint="@string/message_search"
             android:background="@drawable/message_search"
             android:imeOptions="actionSearch"
+            android:singleLine="true"/>
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/delete"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginRight="20dp"
+            android:visibility="gone"
             />
     </FrameLayout>
     <android.support.v7.widget.RecyclerView

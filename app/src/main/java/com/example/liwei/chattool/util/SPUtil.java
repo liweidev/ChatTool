@@ -30,5 +30,16 @@ public class SPUtil {
         String value=sp.getString(key,defaultValue);
         return value;
     }
+    //存入
+    public void put(String key,boolean value){
+        editor.putBoolean(key,value);
+        editor.apply();
+    }
+    //获取
+    public boolean get(String key,boolean defaultValue){
+        boolean value=sp.getBoolean(key,defaultValue);
+        return value;
+    }
+
 
 }

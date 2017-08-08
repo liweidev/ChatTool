@@ -10,12 +10,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.example.liwei.chattool.Constant.Constant;
 import com.example.liwei.chattool.R;
 import com.example.liwei.chattool.adapter.SortAdapter;
 import com.example.liwei.chattool.entity.User;
 import com.example.liwei.chattool.util.Cn2Spell;
+import com.example.liwei.chattool.util.SPUtil;
 import com.example.liwei.chattool.util.ToastUtils;
 import com.example.liwei.chattool.view.SideBar;
 
@@ -31,7 +35,7 @@ import butterknife.Unbinder;
  * Created by liwei on 2017/8/4.
  */
 //联系人Fragment
-public class ContactsFragment extends BaseFragment {
+public class ContactsFragment extends BaseFragment implements View.OnClickListener {
     private static final String TAG = "ContactsFragment";
     //搜索
     @BindView(R.id.etSearch)
@@ -42,11 +46,17 @@ public class ContactsFragment extends BaseFragment {
     //右侧导航条
     @BindView(R.id.side_bar)
     SideBar sideBar;
+    //删除
+    @BindView(R.id.iv_delete)
+    ImageView ivDelete;
     Unbinder unbinder;
     private Context mContext;
     private List<User> list;
     private SortAdapter adapter;
-
+    //消息小红点
+    private TextView tvTap;
+    //是否显示消息小红点
+    private boolean isShowTap;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -57,8 +67,14 @@ public class ContactsFragment extends BaseFragment {
         initListView();
         getConatcts();
         initEditSearch();
+        initLisenter();
         return meView;
     }
+    //初始化监听器
+    private void initLisenter() {
+        ivDelete.setOnClickListener(this);
+    }
+
     //从网络获取联系人列表
     private void getConatcts() {
         //TODO
@@ -74,14 +90,19 @@ public class ContactsFragment extends BaseFragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String chines=s.toString();
+                String pinyin = Cn2Spell.getPinYin(chines); // 根据姓名获取拼音
                 if(chines!=null&&!chines.equals("")){
-                    String pinyin = Cn2Spell.getPinYin(chines); // 根据姓名获取拼音
-                    String firstLetter = pinyin.substring(0, 1).toUpperCase(); // 获取拼音首字母并转成大写
-                    if (!firstLetter.matches("[A-Z]")) { // 如果不在A-Z中则默认为“#”
-                        firstLetter = "#";
+                    ivDelete.setVisibility(View.VISIBLE);
+                    if(!pinyin.equals("")){
+                        String firstLetter = pinyin.substring(0, 1).toUpperCase(); // 获取拼音首字母并转成大写
+                        if (!firstLetter.matches("[A-Z]")) { // 如果不在A-Z中则默认为“#”
+                            firstLetter = "#";
+                        }
+                        int position = adapter.getPositionForSection(firstLetter);
+                        listView.setSelection(position+2);
                     }
-                    int position = adapter.getPositionForSection(firstLetter);
-                    listView.setSelection(position+2);
+                }else{
+                    ivDelete.setVisibility(View.GONE);
                 }
             }
             @Override
@@ -149,8 +170,17 @@ public class ContactsFragment extends BaseFragment {
         list.add(new User("……%￥#￥%#"));
         Collections.sort(list); // 对list进行排序，需要让User实现Comparable接口重写compareTo方法
         adapter = new SortAdapter(mContext, list);
-        listView.addHeaderView(LayoutInflater.from(mContext).inflate(R.layout.contacts_fragment_head_new_friend,null,false));
-        listView.addHeaderView(LayoutInflater.from(mContext).inflate(R.layout.contacts_fragment_head_group_chat,null,false));
+        View newFriendView = LayoutInflater.from(mContext).inflate(R.layout.contacts_fragment_head_new_friend, null, false);
+        tvTap= (TextView) newFriendView.findViewById(R.id.tv_tap);
+        isShowTap=SPUtil.getInstance(mContext,Constant.SHOW_TAP).get(Constant.SHOW_TAP_KEY,false);
+        if(isShowTap){
+            tvTap.setVisibility(View.VISIBLE);
+        }else{
+            tvTap.setVisibility(View.GONE);
+        }
+        View groupChatView = LayoutInflater.from(mContext).inflate(R.layout.contacts_fragment_head_group_chat, null, false);
+        listView.addHeaderView(newFriendView);
+        listView.addHeaderView(groupChatView);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -158,6 +188,8 @@ public class ContactsFragment extends BaseFragment {
                 switch (position){
                     case 0:
                         ToastUtils.showToast("新的朋友");
+                        hideTap();
+                        SPUtil.getInstance(mContext,Constant.SHOW_TAP_MAIN_CONTACTS).put(Constant.SHOW_TAP_MAIN_CONTACTS_KEY,false);
                         break;
                     case 1:
                         ToastUtils.showToast("群聊");
@@ -181,5 +213,22 @@ public class ContactsFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.iv_delete:
+                etSearch.setText("");
+                break;
+        }
+    }
+    //隐藏消息小红点
+    public void hideTap(){
+        SPUtil.getInstance(mContext, Constant.SHOW_TAP).put(Constant.SHOW_TAP_KEY,false);
+    }
+    //显示消息小红点
+    public void showTap(){
+        SPUtil.getInstance(mContext, Constant.SHOW_TAP).put(Constant.SHOW_TAP_KEY,true);
     }
 }
