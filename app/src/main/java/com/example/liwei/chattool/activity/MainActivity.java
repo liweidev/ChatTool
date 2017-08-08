@@ -3,139 +3,244 @@ package com.example.liwei.chattool.activity;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.example.liwei.chattool.Constant.Constant;
 import com.example.liwei.chattool.R;
+import com.example.liwei.chattool.adapter.MainViewPagerAdapter;
+import com.example.liwei.chattool.fragment.ContactsFragment;
+import com.example.liwei.chattool.fragment.FindFragment;
+import com.example.liwei.chattool.fragment.MeFragment;
+import com.example.liwei.chattool.fragment.MessageFragment;
 import com.example.liwei.chattool.util.LogUtil;
-import com.example.liwei.chattool.util.NetUtil;
+import com.example.liwei.chattool.util.SPUtil;
 import com.example.liwei.chattool.util.ToastUtils;
+import com.hyphenate.EMMessageListener;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMConversation;
+import com.hyphenate.chat.EMMessage;
+import com.zhihu.matisse.Matisse;
 import com.zhy.m.permission.MPermissions;
 import com.zhy.m.permission.PermissionDenied;
 import com.zhy.m.permission.PermissionGrant;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
 
 //主界面
 public class MainActivity extends ParentActivity implements View.OnClickListener {
-    //登录
-    @BindView(R.id.login)
-    Button btnLogin;
-    //注册
-    @BindView(R.id.regist)
-    Button btnRegist;
-    //用户名
-    @BindView(R.id.username)
-    EditText etUsername;
-    //密码
-    @BindView(R.id.password)
-    EditText etPassword;
-    //记住密码
-    @BindView(R.id.savePassword)
-    CheckBox cbRemeberMe;
-    //必应每日一图
-    @BindView(R.id.iv_biYing)
-    ImageView ivBiYing;
+    //消息
+    @BindView(R.id.iv_message)
+    ImageView ivMessage;
+    //联系人
+    @BindView(R.id.iv_contacts)
+    ImageView ivContacts;
+    //发现
+    @BindView(R.id.iv_find)
+    ImageView ivFind;
+    //我
+    @BindView(R.id.iv_me)
+    ImageView ivMe;
+    //ViewPager
+    @BindView(R.id.viewPager)
+    ViewPager viewPager;
+    //日志
+    private static final String TAG = "MainActivity";
+    //主界面ViewPager适配器
+    MainViewPagerAdapter mainViewPagerAdapter;
+    //Fragment集合
+    List<Fragment>fragments=new ArrayList<>();
     private Context mContext;
-    //是否记住密码
-    private boolean isRemeberMe=false;
+    //消息监听回掉
+    EMMessageListener msgListener = new EMMessageListener() {
+        @Override
+        public void onMessageReceived(List<EMMessage> messages) {
+            //收到消息
+            LogUtil.d(TAG,"收到消息");
+        }
+        @Override
+        public void onCmdMessageReceived(List<EMMessage> messages) {
+            //收到透传消息
+            LogUtil.d(TAG,"收到透传消息");
+        }
+        @Override
+        public void onMessageRead(List<EMMessage> messages) {
+            //收到已读回执
+            LogUtil.d(TAG,"收到已读回执");
+        }
+        @Override
+        public void onMessageDelivered(List<EMMessage> message) {
+            //收到已送达回执
+            LogUtil.d(TAG,"收到已送达回执");
+        }
+        @Override
+        public void onMessageChanged(EMMessage message, Object change) {
+            //消息状态变动
+            LogUtil.d(TAG,"消息状态变动");
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        requestPermission();
         init();
-        hideStateBar();
+        initViewPager();
+        registerMessageLisenter();
+        getUnReadMessageCount();
+    }
+    //获取未读消息数量
+    private void getUnReadMessageCount() {
+        String username = SPUtil.getInstance(mContext, Constant.CURRENT_USER).get(Constant.CURRENT_USER_KEY, null);
+        if(username!=null|| !TextUtils.isEmpty(username)){
+            EMConversation conversation = EMClient.getInstance().chatManager().getConversation(username);
+            if(conversation!=null){
+                int unreadMsgCount = conversation.getUnreadMsgCount();
+                LogUtil.d(TAG,"未读消息数量:"+unreadMsgCount);
+            }
+        }
+    }
+    //注册消息监听
+    private void registerMessageLisenter() {
+        EMClient.getInstance().chatManager().addMessageListener(msgListener);
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
         checkNetworkState();
-        uploadBiYingImage();
-        isRememberMe();
     }
-    //判断用户上次是否选择记住密码
-    //记住密码：显示密码
-    //未记住密码：清空
-    private void isRememberMe() {
-        SharedPreferences sp = getSharedPreferences(Constant.REMEBER_ME, Context.MODE_PRIVATE);
-        String password = sp.getString(Constant.PASSWORD_KEY, "");
-        if(!TextUtils.isEmpty(password)){
-            etPassword.setText(password);
-        }else {
-            etPassword.setText("");
+    //初始化ViewPager
+    private void initViewPager() {
+        fragments.clear();
+        for(int i=0;i<4;i++){
+            Fragment fragment=null;
+            switch (i){
+                case 0:
+                    fragment=new MessageFragment();
+                    break;
+                case 1:
+                     fragment=new ContactsFragment();
+                    break;
+                case 2:
+                     fragment=new FindFragment();
+                    break;
+                case 3:
+                     fragment=new MeFragment();
+                    break;
+            }
+            fragments.add(fragment);
         }
-    }
-    //加载必应每日一图
-    private void uploadBiYingImage() {
-        boolean isAvalibale = checkNetworkState();
-        if(!isAvalibale){
-            ToastUtils.showToast(R.string.network_is_not_avilable);
-            return;
-        }
-        showDialog();
-        NetUtil.sendHttpRequest(Constant.BIYING_URL, new Callback() {
+        mainViewPagerAdapter=new MainViewPagerAdapter(getSupportFragmentManager(),mContext,fragments);
+        viewPager.setAdapter(mainViewPagerAdapter);
+        setViewPagerSelect(0);
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ToastUtils.showToast(R.string.request_server_is_error);
-                        dismissDialog();
-                    }
-                });
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
             }
             @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                LogUtil.d("currentThreadID:",String.valueOf(Thread.currentThread().getId()));
-                final String imageUrl = response.body().string();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(response.isSuccessful()){
-                            try {
-                                Glide.with(mContext).load(imageUrl).into(ivBiYing);
-                                dismissDialog();
-                                LogUtil.d("imageUrl",imageUrl);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }else{
-                            dismissDialog();
-                        }
-                    }
-                });
+            public void onPageSelected(int position) {
+                setViewPagerSelect(position);
+            }
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
             }
         });
     }
-    //组件初始化
+    //ViewPagerer被选中的TAB变化
+    private void setViewPagerSelect(int position) {
+        switch (position){
+            case 0:
+                ivMessage.setImageResource(R.drawable.message_selector);
+                ivContacts.setImageResource(R.drawable.contacts_normal);
+                ivFind.setImageResource(R.drawable.find_normal);
+                ivMe.setImageResource(R.drawable.me_normal);
+                break;
+            case 1:
+                ivMessage.setImageResource(R.drawable.message_normal);
+                ivContacts.setImageResource(R.drawable.contacts_selector);
+                ivFind.setImageResource(R.drawable.find_normal);
+                ivMe.setImageResource(R.drawable.me_normal);
+                break;
+            case 2:
+                ivMessage.setImageResource(R.drawable.message_normal);
+                ivContacts.setImageResource(R.drawable.contacts_normal);
+                ivFind.setImageResource(R.drawable.find_selector);
+                ivMe.setImageResource(R.drawable.me_normal);
+                break;
+            case 3:
+                ivMessage.setImageResource(R.drawable.message_normal);
+                ivContacts.setImageResource(R.drawable.contacts_normal);
+                ivFind.setImageResource(R.drawable.find_normal);
+                ivMe.setImageResource(R.drawable.me_selector);
+                break;
+        }
+        viewPager.setCurrentItem(position);
+    }
+    //初始化
     private void init(){
         mContext=this;
-        btnLogin.setOnClickListener(this);
-        btnRegist.setOnClickListener(this);
-        cbRemeberMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if(isChecked){
-                        isRemeberMe=true;
-                    }else{
-                        isRemeberMe=false;
-                    }
+        ivMessage.setOnClickListener(this);
+        ivContacts.setOnClickListener(this);
+        ivFind.setOnClickListener(this);
+        ivMe.setOnClickListener(this);
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add:
+                requestPermission();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constant.REQUEST_IMAGE_CODE_CHOOSE && resultCode == RESULT_OK) {
+            //被选中图片的URI集合
+            List<Uri> mSelected;
+            mSelected = Matisse.obtainResult(data);
+            for(Uri uri:mSelected){
+                String realPathName = getRealFilePath(mContext, uri);
+                LogUtil.d(TAG, "realPathName: " + realPathName);
             }
-        });
+        }
+    }
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.iv_message://消息
+                setViewPagerSelect(0);
+                break;
+            case R.id.iv_contacts://联系人
+                setViewPagerSelect(1);
+                break;
+            case R.id.iv_find://发现
+                setViewPagerSelect(2);
+                break;
+            case R.id.iv_me://我
+                setViewPagerSelect(3);
+                break;
+        }
     }
     //请求权限
     private void requestPermission() {
@@ -145,6 +250,7 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     @PermissionGrant(Constant.WRITE_STORGE_REQUEST_CODE)
     public void onSuccess() {
         //ToastUtils.showToast(R.string.permission_sdcard_success);
+        selecteImage(this, Constant.REQUEST_IMAGE_CODE_CHOOSE);
     }
     //SD卡权限失败回掉
     @PermissionDenied(Constant.WRITE_STORGE_REQUEST_CODE)
@@ -156,17 +262,5 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
         MPermissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-    @Override
-    public void onClick(View v) {
-        Intent intent=null;
-        switch (v.getId()){
-            case R.id.login://登录
 
-                break;
-            case R.id.regist://注册
-                intent=new Intent(this,RegistActivity.class);
-                startActivityWithAnimation(intent,false);
-                break;
-        }
-    }
 }

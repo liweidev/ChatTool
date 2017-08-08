@@ -25,3 +25,4 @@
 #-renamesourcefileattribute SourceFile
 -keep class com.hyphenate.** {*;}
 -dontwarn  com.hyphenate.**
+-dontwarn com.squareup.picasso.**

@@ -28,7 +28,8 @@
         android:textColor="#FFFFFFFF"
         android:textColorHint="#FFFFFFFF"
         android:drawableLeft="@drawable/username"
-        android:drawablePadding="10dp"/>
+        android:drawablePadding="10dp"
+        android:paddingRight="5dp"/>
 
     <EditText
         android:id="@+id/password"
@@ -50,7 +51,8 @@
         android:textColor="#FFFFFFFF"
         android:textColorHint="#FFFFFFFF"
         android:drawableLeft="@drawable/password"
-        android:drawablePadding="10dp"/>
+        android:drawablePadding="10dp"
+        android:paddingRight="5dp"/>
 
     <Button
         android:id="@+id/regist"

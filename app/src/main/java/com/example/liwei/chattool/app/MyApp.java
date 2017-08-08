@@ -4,6 +4,7 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.support.multidex.MultiDex;
 
 import com.example.liwei.chattool.util.LogUtil;
 import com.hyphenate.chat.EMClient;
@@ -23,6 +24,7 @@ public class MyApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        MultiDex.install(this);
         mContext=getApplicationContext();
         registPushServer();
         initChatService();
@@ -31,6 +33,8 @@ public class MyApp extends Application {
     //初始化环信服务
     private void initChatService() {
         EMOptions options = new EMOptions();
+        //取消自动登录
+        //options.setAutoLogin(false);
         // 默认添加好友时，是不需要验证的，改成需要验证
         options.setAcceptInvitationAlways(false);
         int pid = android.os.Process.myPid();

@@ -1,4 +1,5 @@
 <resources>
+    <!--appName-->
     <string name="app_name">ChatTool</string>
     <!--权限-->
     <string name="permission_sdcard_success">申请SD卡权限成功</string>
@@ -7,4 +8,21 @@
     <string name="network_is_not_avilable">当前网络不可用,请检查网络！</string>
     <!--请求服务器异常-->
     <string name="request_server_is_error">请求服务器异常</string>
+    <!--注册-->
+    <string name="regist_username_is_empty">用户名不能为空!</string>
+    <string name="regist_password_is_empty">密码不能为空!</string>
+    <string name="regist_success">注册成功</string>
+    <string name="regist_error">注册失败</string>
+    <string name="network_anomalies">Network is not available, please check the network!</string>
+    <string name="User_already_exists">User already existed!</string>
+    <string name="registration_failed_without_permission">Registration failed, without permission!</string>
+    <string name="Registration_failed">Registration failed</string>
+    <string name="illegal_user_name">Illegal user name</string>
+    <!--登录-->
+    <string name="login_success">登录成功</string>
+    <string name="account_is_remove">帐号已经被移除</string>
+    <string name="account_is_login_on_other_device">帐号在其他设备登录</string>
+    <string name="connect_server_failed">连接聊天服务器失败</string>
+
+
 </resources>
