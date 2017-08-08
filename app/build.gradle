@@ -47,4 +47,6 @@ dependencies {
     apt 'com.zhy:mpermission-compiler:1.0.0'
     compile 'com.zhihu.android:matisse:0.4.3'
     compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:recyclerview-v7:21.0.0'
+    compile 'com.belerweb:pinyin4j:2.5.1'
 }

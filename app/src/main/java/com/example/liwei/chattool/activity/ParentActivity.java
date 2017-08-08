@@ -137,6 +137,13 @@ public class ParentActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
     }
+    //隐藏ActionBar
+    public void hideActionBar(){
+        ActionBar actionBar = getSupportActionBar();
+        if(null!=actionBar){
+            actionBar.hide();
+        }
+    }
     //判断EditText是否为空
     //return:
     //true:为空

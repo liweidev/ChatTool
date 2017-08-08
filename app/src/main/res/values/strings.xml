@@ -23,6 +23,16 @@
     <string name="account_is_remove">帐号已经被移除</string>
     <string name="account_is_login_on_other_device">帐号在其他设备登录</string>
     <string name="connect_server_failed">连接聊天服务器失败</string>
+    <!--主界面-->
+    <string name="main_message">会话</string>
+    <string name="main_contacts">通讯录</string>
+    <string name="main_find">发现</string>
+    <string name="main_me">设置</string>
+    <!--消息Fragment-->
+    <string name="message_search">搜索</string>
+    <!--联系人Fragment-->
+    <string name="contacts_new_friend">新的朋友</string>
+    <string name="contacts_group_chat">群聊</string>
 
 
 </resources>

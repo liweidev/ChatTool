@@ -9,10 +9,9 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.liwei.chattool.Constant.Constant;
 import com.example.liwei.chattool.R;
@@ -61,94 +60,109 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
     //主界面ViewPager适配器
     MainViewPagerAdapter mainViewPagerAdapter;
     //Fragment集合
-    List<Fragment>fragments=new ArrayList<>();
+    List<Fragment> fragments = new ArrayList<>();
+    //标题
+    @BindView(R.id.tv_title)
+    TextView tvTitle;
+    //添加
+    @BindView(R.id.iv_add)
+    ImageView ivAdd;
     private Context mContext;
     //消息监听回掉
     EMMessageListener msgListener = new EMMessageListener() {
         @Override
         public void onMessageReceived(List<EMMessage> messages) {
             //收到消息
-            LogUtil.d(TAG,"收到消息");
+            LogUtil.d(TAG, "收到消息");
         }
+
         @Override
         public void onCmdMessageReceived(List<EMMessage> messages) {
             //收到透传消息
-            LogUtil.d(TAG,"收到透传消息");
+            LogUtil.d(TAG, "收到透传消息");
         }
+
         @Override
         public void onMessageRead(List<EMMessage> messages) {
             //收到已读回执
-            LogUtil.d(TAG,"收到已读回执");
+            LogUtil.d(TAG, "收到已读回执");
         }
+
         @Override
         public void onMessageDelivered(List<EMMessage> message) {
             //收到已送达回执
-            LogUtil.d(TAG,"收到已送达回执");
+            LogUtil.d(TAG, "收到已送达回执");
         }
+
         @Override
         public void onMessageChanged(EMMessage message, Object change) {
             //消息状态变动
-            LogUtil.d(TAG,"消息状态变动");
+            LogUtil.d(TAG, "消息状态变动");
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        hideActionBar();
         init();
         initViewPager();
         registerMessageLisenter();
         getUnReadMessageCount();
     }
+
     //获取未读消息数量
     private void getUnReadMessageCount() {
         String username = SPUtil.getInstance(mContext, Constant.CURRENT_USER).get(Constant.CURRENT_USER_KEY, null);
-        if(username!=null|| !TextUtils.isEmpty(username)){
+        if (username != null || !TextUtils.isEmpty(username)) {
             EMConversation conversation = EMClient.getInstance().chatManager().getConversation(username);
-            if(conversation!=null){
+            if (conversation != null) {
                 int unreadMsgCount = conversation.getUnreadMsgCount();
-                LogUtil.d(TAG,"未读消息数量:"+unreadMsgCount);
+                LogUtil.d(TAG, "未读消息数量:" + unreadMsgCount);
             }
         }
     }
+
     //注册消息监听
     private void registerMessageLisenter() {
         EMClient.getInstance().chatManager().addMessageListener(msgListener);
     }
+
     @Override
     protected void onResume() {
         super.onResume();
         checkNetworkState();
     }
+
     //初始化ViewPager
     private void initViewPager() {
         fragments.clear();
-        for(int i=0;i<4;i++){
-            Fragment fragment=null;
-            switch (i){
+        for (int i = 0; i < 4; i++) {
+            Fragment fragment = null;
+            switch (i) {
                 case 0:
-                    fragment=new MessageFragment();
+                    fragment = new MessageFragment();
                     break;
                 case 1:
-                     fragment=new ContactsFragment();
+                    fragment = new ContactsFragment();
                     break;
                 case 2:
-                     fragment=new FindFragment();
+                    fragment = new FindFragment();
                     break;
                 case 3:
-                     fragment=new MeFragment();
+                    fragment = new MeFragment();
                     break;
             }
             fragments.add(fragment);
         }
-        mainViewPagerAdapter=new MainViewPagerAdapter(getSupportFragmentManager(),mContext,fragments);
+        mainViewPagerAdapter = new MainViewPagerAdapter(getSupportFragmentManager(), mContext, fragments);
         viewPager.setAdapter(mainViewPagerAdapter);
         setViewPagerSelect(0);
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
             }
             @Override
             public void onPageSelected(int position) {
@@ -156,62 +170,59 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             }
             @Override
             public void onPageScrollStateChanged(int state) {
-
             }
         });
     }
+
     //ViewPagerer被选中的TAB变化
     private void setViewPagerSelect(int position) {
-        switch (position){
+        switch (position) {
             case 0:
                 ivMessage.setImageResource(R.drawable.message_selector);
                 ivContacts.setImageResource(R.drawable.contacts_normal);
                 ivFind.setImageResource(R.drawable.find_normal);
                 ivMe.setImageResource(R.drawable.me_normal);
+                tvTitle.setText(R.string.main_message);
+                ivAdd.setVisibility(View.GONE);
                 break;
             case 1:
                 ivMessage.setImageResource(R.drawable.message_normal);
                 ivContacts.setImageResource(R.drawable.contacts_selector);
                 ivFind.setImageResource(R.drawable.find_normal);
                 ivMe.setImageResource(R.drawable.me_normal);
+                tvTitle.setText(R.string.main_contacts);
+                ivAdd.setVisibility(View.VISIBLE);
                 break;
             case 2:
                 ivMessage.setImageResource(R.drawable.message_normal);
                 ivContacts.setImageResource(R.drawable.contacts_normal);
                 ivFind.setImageResource(R.drawable.find_selector);
                 ivMe.setImageResource(R.drawable.me_normal);
+                tvTitle.setText(R.string.main_find);
+                ivAdd.setVisibility(View.GONE);
                 break;
             case 3:
                 ivMessage.setImageResource(R.drawable.message_normal);
                 ivContacts.setImageResource(R.drawable.contacts_normal);
                 ivFind.setImageResource(R.drawable.find_normal);
                 ivMe.setImageResource(R.drawable.me_selector);
+                tvTitle.setText(R.string.main_me);
+                ivAdd.setVisibility(View.GONE);
                 break;
         }
         viewPager.setCurrentItem(position);
     }
+
     //初始化
-    private void init(){
-        mContext=this;
+    private void init() {
+        mContext = this;
         ivMessage.setOnClickListener(this);
         ivContacts.setOnClickListener(this);
         ivFind.setOnClickListener(this);
         ivMe.setOnClickListener(this);
+        ivAdd.setOnClickListener(this);
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.add:
-                requestPermission();
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -219,15 +230,16 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             //被选中图片的URI集合
             List<Uri> mSelected;
             mSelected = Matisse.obtainResult(data);
-            for(Uri uri:mSelected){
+            for (Uri uri : mSelected) {
                 String realPathName = getRealFilePath(mContext, uri);
                 LogUtil.d(TAG, "realPathName: " + realPathName);
             }
         }
     }
+
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.iv_message://消息
                 setViewPagerSelect(0);
                 break;
@@ -240,23 +252,30 @@ public class MainActivity extends ParentActivity implements View.OnClickListener
             case R.id.iv_me://我
                 setViewPagerSelect(3);
                 break;
+            case R.id.iv_add://添加
+                requestPermission();
+                break;
         }
     }
+
     //请求权限
     private void requestPermission() {
         MPermissions.requestPermissions(this, Constant.WRITE_STORGE_REQUEST_CODE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
+
     //SD卡权限成功回掉
     @PermissionGrant(Constant.WRITE_STORGE_REQUEST_CODE)
     public void onSuccess() {
         //ToastUtils.showToast(R.string.permission_sdcard_success);
         selecteImage(this, Constant.REQUEST_IMAGE_CODE_CHOOSE);
     }
+
     //SD卡权限失败回掉
     @PermissionDenied(Constant.WRITE_STORGE_REQUEST_CODE)
     public void onFailed() {
         ToastUtils.showToast(R.string.permission_sdcard_failed);
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         MPermissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
